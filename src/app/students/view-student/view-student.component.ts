@@ -31,7 +31,10 @@ export class ViewStudentComponent implements OnInit {
       physicalAddress: '',
       postalAddress: ''
     }
-  }
+  };
+
+  isNewStudent = false;
+  header = '';
 
   genderList: Gender[] = [];
 
@@ -45,12 +48,22 @@ export class ViewStudentComponent implements OnInit {
         this.studentId = params.get('id');
 
         if (this.studentId) {
-          this.studentService.getStudent(this.studentId)
-          .subscribe(
-            (successResponse) => {
-              this.student = successResponse;
-            }
-          );
+          //If the route contains the keyword 'Add'
+          if(this.studentId.toLowerCase()=== 'Add'.toLowerCase()){
+          // new student functionality
+            this.isNewStudent = true;
+            this.header = 'Add New Student';
+          } else{
+            ///else existing student functionality
+            this.isNewStudent = false;
+            this.header = 'Edit Student';
+            this.studentService.getStudent(this.studentId)
+            .subscribe(
+              (successResponse) => {
+                this.student = successResponse;
+              }
+            );
+          }
 
           this.genderService.getGenderList()
           .subscribe(
@@ -94,4 +107,22 @@ export class ViewStudentComponent implements OnInit {
         }
       );
       }
+
+    onAdd(): void{
+      this.studentService.addStudent(this.student).subscribe(
+        (successResponse) => {
+          this.snackbar.open('Student added successfully', undefined, {
+            duration: 2000
+        });
+
+        setTimeout(() => {
+          this.router.navigateByUrl(`students/${successResponse.id}`);
+        }, 2000);
+      },
+        (errorResponse) => {
+          //log
+        }
+      );
+
+    }
     }
