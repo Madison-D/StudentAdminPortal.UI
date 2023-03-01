@@ -5,6 +5,8 @@ import { Gender } from 'src/app/models/ui-models/gender.model';
 import { Student } from 'src/app/models/ui-models/student.model';
 import { GenderService } from 'src/app/services/gender.service';
 import { StudentService } from '../student.service';
+import { NgForm } from '@angular/forms';
+import { ViewChild } from '@angular/core'
 
 @Component({
   selector: 'app-view-student',
@@ -38,6 +40,8 @@ export class ViewStudentComponent implements OnInit {
   displayProfileImageUrl = '';
 
   genderList: Gender[] = [];
+
+  @ViewChild('studentDetailsForm') studentDetailsForm?: NgForm;
 
   constructor(private readonly studentService: StudentService,
     private readonly route: ActivatedRoute,
@@ -85,7 +89,8 @@ export class ViewStudentComponent implements OnInit {
   }
 
   onUpdate(): void {
-    this.studentService.updateStudent(this.student.id, this.student)
+    if(this.studentDetailsForm?.form.valid) {
+      this.studentService.updateStudent(this.student.id, this.student)
       .subscribe(
         (successResponse) => {
           // Show a notification
@@ -94,9 +99,10 @@ export class ViewStudentComponent implements OnInit {
           });
         },
         (errorResponse) => {
-          // Log it
+          console.log(errorResponse);
         }
       );
+    }
   }
 
   onDelete(): void {
@@ -118,7 +124,8 @@ export class ViewStudentComponent implements OnInit {
   }
 
   onAdd(): void {
-    this.studentService.addStudent(this.student)
+    if(this.studentDetailsForm?.form.valid){
+      this.studentService.addStudent(this.student)
       .subscribe(
         (successResponse) => {
           this.snackbar.open('Student added successfully', undefined, {
@@ -132,9 +139,11 @@ export class ViewStudentComponent implements OnInit {
         },
         (errorResponse) => {
           // Log
+          console.log(errorResponse);
+
         }
       );
-
+    }
   }
 
   uploadImage(event: any): void {
